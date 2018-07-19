@@ -23,6 +23,6 @@
 /**
  Returns a fully populated URL request for the given path and parameters
  */
-- (NSURLRequest*)requestWithPath:(NSString*)path andParams:(NSDictionary*)params;
+- (NSURLRequest*)requestWithPath:(NSString*)path andParams:(NSDictionary*)params andAdditionalParams:(NSDictionary*)additionalParams;
 
 @end

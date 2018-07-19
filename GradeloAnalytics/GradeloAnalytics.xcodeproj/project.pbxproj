@@ -12,8 +12,6 @@
 		2FDE73A420FF9917005E2D48 /* RequestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FDE73A220FF9917005E2D48 /* RequestFactory.m */; };
 		2FDE73A920FF996B005E2D48 /* Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FDE73A720FF996B005E2D48 /* Framework.h */; };
 		2FDE73AA20FF996B005E2D48 /* Framework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FDE73A820FF996B005E2D48 /* Framework.m */; };
-		2FDE73AC20FF9B4F005E2D48 /* Cartfile in Resources */ = {isa = PBXBuildFile; fileRef = 2FDE73AB20FF9B4F005E2D48 /* Cartfile */; };
-		2FDE73AF20FF9B88005E2D48 /* PromiseKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2FDE73AE20FF9B88005E2D48 /* PromiseKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -24,7 +22,6 @@
 		2FDE73A220FF9917005E2D48 /* RequestFactory.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RequestFactory.m; sourceTree = "<group>"; };
 		2FDE73A720FF996B005E2D48 /* Framework.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Framework.h; sourceTree = "<group>"; };
 		2FDE73A820FF996B005E2D48 /* Framework.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Framework.m; sourceTree = "<group>"; };
-		2FDE73AB20FF9B4F005E2D48 /* Cartfile */ = {isa = PBXFileReference; lastKnownFileType = text; name = Cartfile; path = ../Cartfile; sourceTree = "<group>"; };
 		2FDE73AE20FF9B88005E2D48 /* PromiseKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PromiseKit.framework; path = ../Carthage/Build/iOS/PromiseKit.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -33,7 +30,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FDE73AF20FF9B88005E2D48 /* PromiseKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -43,7 +39,6 @@
 		2FDE738B20FF955F005E2D48 = {
 			isa = PBXGroup;
 			children = (
-				2FDE73AB20FF9B4F005E2D48 /* Cartfile */,
 				2FDE739720FF955F005E2D48 /* GradeloAnalytics */,
 				2FDE739620FF955F005E2D48 /* Products */,
 				2FDE73AD20FF9B88005E2D48 /* Frameworks */,
@@ -157,7 +152,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2FDE73AC20FF9B4F005E2D48 /* Cartfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -302,7 +296,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../Carthage/Build/iOS";
 				INFOPLIST_FILE = GradeloAnalytics/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -327,7 +320,6 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				FRAMEWORK_SEARCH_PATHS = "$(PROJECT_DIR)/../Carthage/Build/iOS";
 				INFOPLIST_FILE = GradeloAnalytics/Info.plist;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (

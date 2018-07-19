@@ -14,9 +14,9 @@
 
 @property (strong, nonatomic) NSURLSession *urlSession;
 @property (strong, nonatomic) NSOperationQueue *requestQueue;
+@property (strong, nonatomic) NSMutableArray *sessions;
 @property (strong, nonatomic) NSTimer *keepaliveTimer;
-@property (strong, nonatomic) BOOL autoPingEnabled;
-@property (strong, nonatomic) NSMutableDictionary *trackingSessionMapping;
+@property (nonatomic) BOOL autoPingEnabled;
 @property (strong, nonatomic) NSMutableDictionary *globalParameters;
 @property (strong, nonatomic) RequestFactory *requestFactory;
 
@@ -38,15 +38,16 @@
 - (instancetype)init {
     self = [super init];
     self.requestQueue = [NSOperationQueue new];
-    self.trackingSessionMapping = @{}.mutableCopy;
+    self.requestQueue.maxConcurrentOperationCount = 1;
     self.globalParameters = @{}.mutableCopy;
+    self.sessions = @[].mutableCopy;
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     config.HTTPShouldSetCookies = YES;
     self.urlSession = [NSURLSession sessionWithConfiguration:config delegate:nil delegateQueue:self.requestQueue];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppMovedToForeground) name:UIApplicationDidBecomeActiveNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppMovedToBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(onAppWillTerminate) name:UIApplicationWillTerminateNotification object:nil];
-
+    
     return self;
 }
 
@@ -63,13 +64,36 @@
 }
 
 - (void)onAppWillTerminate {
-    
+    self.requestQueue.maxConcurrentOperationCount = NSOperationQueueDefaultMaxConcurrentOperationCount;
+    [self.sessions enumerateObjectsUsingBlock:^(NSString*  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [self stopSessionWithID:obj];
+    }];
 }
 
 #pragma mark Request Handling
 
 - (void)enqueueRequest:(NSURLRequest*)request {
-    
+    [self.urlSession dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
+        if(error) {
+            NSLog(@"[GradeloAnalytics]: %@, %@", error.localizedDescription, error.localizedFailureReason);
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self enqueueRequest:request];
+            });
+            return;
+        }
+        if([response isKindOfClass:[NSHTTPURLResponse class]]) {
+            NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse*)response;
+            if(httpResponse.statusCode < 400 && httpResponse.statusCode >= 200) {
+                // Request successful
+            } else {
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self enqueueRequest:request];
+                });
+                NSLog(@"[GradeloAnalytics]: Invalid status code: %ld, %@", httpResponse.statusCode, httpResponse.description);
+                return;
+            }
+        }
+    }];
 }
 
 #pragma mark Configuration
@@ -90,7 +114,12 @@
 }
 
 - (void)triggerEvent:(NSString*)eventID withParams:(NSDictionary*)params {
-    self.requestFactory requestWithPath:@"track" andParams:<#(NSDictionary *)#>
+    NSURLRequest *request = [self.requestFactory requestWithPath:@"track" andParams:@{
+                                                                                      @"nmn": eventID,
+                                                                                      @"typ": @"event",
+                                                                                      @"tim": [NSDate new]
+                                                                                      } andAdditionalParams: params];
+    [self enqueueRequest:request];
 }
 
 #pragma mark Login / Logout
@@ -100,7 +129,14 @@
 }
 
 - (void)loginWithType:(NSString*)type withID:(NSString*)identifier withParams:(NSDictionary*)params {
-    
+    NSURLRequest *request = [self.requestFactory requestWithPath:@"login" andParams:@{
+                                                                                      @"nmn": type,
+                                                                                      @"typ": type,
+                                                                                      @"tim": [NSDate new],
+                                                                                      @"emi": params[@"email"],
+                                                                                      @"euid": identifier
+                                                                                      } andAdditionalParams: params];
+    [self enqueueRequest:request];
 }
 
 - (void)logout {
@@ -108,7 +144,12 @@
 }
 
 - (void)logoutWithParams:(NSDictionary*)params {
-    
+    NSURLRequest *request = [self.requestFactory requestWithPath:@"logout" andParams:@{
+                                                                                       @"nmn": @"logout",
+                                                                                       @"typ": @"logout",
+                                                                                       @"tim": [NSDate new]
+                                                                                       } andAdditionalParams: params];
+    [self enqueueRequest:request];
 }
 
 #pragma mark Session
@@ -118,8 +159,15 @@
 }
 
 - (NSString*)startSessionWithParams:(NSDictionary*)params {
-    NSString *uuid = [NSUUID UUID].UUIDString;
-
+    NSString *uuid = [@[[NSUUID UUID].UUIDString, [NSUUID UUID].UUIDString] componentsJoinedByString:@"-"];
+    NSURLRequest *request = [self.requestFactory requestWithPath:@"start"
+                                                       andParams:@{
+                                                                   @"sei": uuid,
+                                                                   @"tim": [NSDate new]
+                                                                   }
+                                             andAdditionalParams:params];
+    [self.sessions addObject:uuid];
+    [self enqueueRequest:request];
     return uuid;
 }
 
@@ -128,7 +176,13 @@
 }
 
 - (void)stopSessionWithID:(NSString*)sessionID withParams:(NSDictionary*)params {
-    
+    NSURLRequest *request = [self.requestFactory requestWithPath:@"stop"
+                                                       andParams:@{
+                                                                   @"sei": sessionID,
+                                                                   @"tim": [NSDate new]
+                                                                   }
+                                             andAdditionalParams:params];
+    [self enqueueRequest:request];
 }
 
 @end
