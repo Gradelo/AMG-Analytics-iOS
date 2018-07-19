@@ -10,7 +10,7 @@
 		2FDE739A20FF9560005E2D48 /* GradeloAnalytics.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FDE739820FF9560005E2D48 /* GradeloAnalytics.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2FDE73A320FF9917005E2D48 /* RequestFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FDE73A120FF9917005E2D48 /* RequestFactory.h */; };
 		2FDE73A420FF9917005E2D48 /* RequestFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FDE73A220FF9917005E2D48 /* RequestFactory.m */; };
-		2FDE73A920FF996B005E2D48 /* Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FDE73A720FF996B005E2D48 /* Framework.h */; };
+		2FDE73A920FF996B005E2D48 /* Framework.h in Headers */ = {isa = PBXBuildFile; fileRef = 2FDE73A720FF996B005E2D48 /* Framework.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2FDE73AA20FF996B005E2D48 /* Framework.m in Sources */ = {isa = PBXBuildFile; fileRef = 2FDE73A820FF996B005E2D48 /* Framework.m */; };
 /* End PBXBuildFile section */
 
