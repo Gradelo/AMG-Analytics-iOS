@@ -21,9 +21,9 @@
  Initializes the Gradelo Analytics SDK
 
  @param appID - The siteId of the tracker
- @param autoPing - Enables automatic session keepAlive
+ @param startSession - Enables automatic session starting for global app
  */
-- (void)initialize:(NSString*)appID autoPing:(BOOL)autoPing;
+- (void)initialize:(NSString*)appID autoStartSession:(BOOL)startSession;
 
 
 /**
@@ -91,6 +91,8 @@
  */
 - (NSString*)startSessionWithParams:(NSDictionary*)params;
 
+- (NSString*)startPageviewWithID:(NSString*)pageViewID;
+- (NSString*)startPageviewWithID:(NSString*)pageViewID andParams:(NSDictionary*)params;
 /**
  Stops the session with the specified id
  
