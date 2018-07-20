@@ -12,7 +12,20 @@
 NSString * const APIHost = @"api.metta.tech";
 NSString * const CachedUUIDString = @"com.gradelo.gradeloanalytics.fallbackClientID";
 
+@interface RequestFactory ()
+@property (strong, nonatomic) NSDateFormatter *formatter;
+@end
+
 @implementation RequestFactory
+
+- (NSDateFormatter *)formatter {
+    if(!_formatter) {
+        _formatter = [NSDateFormatter new];
+        _formatter.dateFormat = @"yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+        _formatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
+    }
+    return _formatter;
+}
 
 /**
 This function initializes a new request factore with the given tracker id
@@ -25,36 +38,49 @@ This function initializes a new request factore with the given tracker id
 
 #pragma mark Request Generation
 
+- (NSArray<NSURLQueryItem*>*)recursiveItems:(NSDictionary*)dict forKeyPath:(NSString*)keyPath {
+    NSMutableArray<NSURLQueryItem*>* queryItems = [NSMutableArray array];
+    [dict enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+        if(keyPath) {
+            key = [[keyPath stringByAppendingString:@"."] stringByAppendingString:key];
+        }
+        if ([obj isKindOfClass:[NSDictionary class]]) {
+            [queryItems addObjectsFromArray: [self recursiveItems:obj forKeyPath:key]];
+        } else if ([obj isKindOfClass:[NSArray class]]) {
+            [(NSArray*)obj enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:obj]];
+            }];
+        } else if ([obj isKindOfClass: [NSDate class]]){
+            [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:[NSString stringWithFormat:@"%f", [(NSDate*)obj timeIntervalSince1970] * 1000.0]]];
+        } else if([obj isKindOfClass: [NSNumber class]]) {
+            [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:[NSString stringWithFormat: @"%@", obj]]];
+        } else {
+            [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:obj]];
+        }
+    }];
+    return queryItems;
+}
+
 /**
  This function configures an URL request with the specified parameters
  */
 - (NSURLRequest*)requestWithPath:(NSString*)path andParams:(NSDictionary*)params andAdditionalParams:(NSDictionary*)additionalParams {
     NSURLComponents *components = [[NSURLComponents alloc] init];
     components.host = APIHost;
-    components.path = path;
+    components.path = [@"/" stringByAppendingString: path];
     components.scheme = @"https";
     NSMutableArray *queryItems = [NSMutableArray array];
     NSMutableDictionary *mutableParams = [self defaultParameters:additionalParams].mutableCopy;
     [mutableParams addEntriesFromDictionary:params];
-    [mutableParams enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if([obj isKindOfClass:[NSDictionary class]] || [obj isKindOfClass:[NSArray class]]) {
-            @try {
-                [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:[[NSJSONSerialization dataWithJSONObject:obj options:0 error:nil] base64EncodedStringWithOptions:0]]];
-            } @catch (NSException *exception) {
-                
-            }
-        } else {
-            [queryItems addObject: [NSURLQueryItem queryItemWithName:key value:obj]];
-        }
-    }];
+    [queryItems addObjectsFromArray: [self recursiveItems:mutableParams forKeyPath:nil]];
     [queryItems addObject: [NSURLQueryItem queryItemWithName:@"cid" value:[self clientID]]];
     [queryItems addObject: [NSURLQueryItem queryItemWithName:@"tid" value:self.trackerID]];
 
     components.queryItems = queryItems;
-    
+    NSLog(@"%@", components.URL.absoluteString);
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL: components.URL];
     request.HTTPShouldHandleCookies = YES;
-    request.timeoutInterval = 30;
+    request.timeoutInterval = 10;
     return request;
 }
 
@@ -70,7 +96,8 @@ This function generates the default request parameters merged with the additiona
             @"ah": @([UIScreen mainScreen].bounds.size.height)
         },
         @"par": additionalParams,
-        @"aid": @"app"
+        @"aid": @"app",
+        @"tim": [NSDate date]
     };
 }
 
