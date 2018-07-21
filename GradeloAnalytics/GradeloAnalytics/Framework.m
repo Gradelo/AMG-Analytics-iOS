@@ -93,7 +93,7 @@
                 dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                     [self enqueueRequest:request];
                 });
-                NSLog(@"[GradeloAnalytics]: Invalid status code: %ld, %@", httpResponse.statusCode, httpResponse.description);
+                NSLog(@"[GradeloAnalytics]: Invalid status code: %ld, %@", (long)httpResponse.statusCode, httpResponse.description);
                 return;
             }
         }
