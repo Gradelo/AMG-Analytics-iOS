@@ -75,6 +75,7 @@ This function initializes a new request factore with the given tracker id
     [queryItems addObjectsFromArray: [self recursiveItems:mutableParams forKeyPath:nil]];
     [queryItems addObject: [NSURLQueryItem queryItemWithName:@"cid" value:[self clientID]]];
     [queryItems addObject: [NSURLQueryItem queryItemWithName:@"tid" value:self.trackerID]];
+    [queryItems addObject: [NSURLQueryItem queryItemWithName:@"bndl" value:[[NSBundle mainBundle] bundleIdentifier]]];
 
     components.queryItems = queryItems;
     NSLog(@"%@", components.URL.absoluteString);
