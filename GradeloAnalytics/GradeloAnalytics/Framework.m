@@ -18,6 +18,7 @@
 @property (strong, nonatomic) NSURLSession *urlSession;
 @property (strong, nonatomic) NSOperationQueue *requestQueue;
 @property (strong, nonatomic) NSMutableArray *sessions;
+@property (strong, nonatomic) NSMutableDictionary *sessionTypes;
 @property (strong, nonatomic) NSTimer *keepaliveTimer;
 @property (strong, nonatomic) NSMutableDictionary *globalParameters;
 @property (strong, nonatomic) RequestFactory *requestFactory;
@@ -41,6 +42,7 @@
     self = [super init];
     self.requestQueue = [NSOperationQueue new];
     self.globalParameters = @{}.mutableCopy;
+    self.sessionTypes = @{}.mutableCopy;
     self.sessions = @[].mutableCopy;
     NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
     config.HTTPShouldSetCookies = YES;
@@ -110,7 +112,7 @@
         }
         NSMutableArray *sessionData = [NSMutableArray array];
         [self.sessions enumerateObjectsUsingBlock:^(NSString * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            [sessionData addObject: [@"session." stringByAppendingString:obj]];
+            [sessionData addObject: [[self.sessionTypes[obj] ?: @"session" stringByAppendingString:@"."] stringByAppendingString:obj]];
         }];
         NSString *encodedString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:sessionData options:0 error:nil] encoding:NSUTF8StringEncoding];
         NSURLRequest *request = [self.requestFactory requestWithPath:@"ping" andParams:@{
@@ -219,6 +221,7 @@
                                              andAdditionalParams:params];
     [self.sessions addObject:uuid];
     [self enqueueRequest:request];
+    self.sessionTypes[uuid] = @"session";
     return uuid;
 }
 
@@ -240,6 +243,7 @@
                                                                    }
                                              andAdditionalParams:params];
     [self.sessions addObject:uuid];
+    self.sessionTypes[uuid] = @"pageview";
     [self enqueueRequest:request];
     return uuid;
 }
@@ -257,6 +261,7 @@
                                                                    }
                                              andAdditionalParams:params];
     [self.sessions removeObject:sessionID];
+    [self.sessionTypes removeObjectForKey:sessionID];
     [self enqueueRequest:request];
 }
 
