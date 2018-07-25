@@ -91,8 +91,9 @@
  */
 - (NSString*)startSessionWithParams:(NSDictionary*)params;
 
-- (NSString*)startPageviewWithID:(NSString*)pageViewID;
-- (NSString*)startPageviewWithID:(NSString*)pageViewID andParams:(NSDictionary*)params;
+- (NSString*)startPageviewWithTitle:(NSString*)title andLocation:(NSString*)location;
+- (NSString*)startPageviewWithTitle:(NSString*)title andLocation:(NSString*)location andParams:(NSDictionary*)params;
+
 /**
  Stops the session with the specified id
  

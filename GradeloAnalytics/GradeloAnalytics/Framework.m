@@ -223,18 +223,20 @@
 }
 
 
-- (NSString*)startPageviewWithID:(NSString*)pageViewID  {
-    return [self startPageviewWithID: pageViewID andParams:@{}];
+- (NSString*)startPageviewWithTitle:(NSString *)title andLocation:(NSString *)location  {
+    return [self startPageviewWithTitle:title andLocation:location andParams:@{}];
 }
 
-- (NSString*)startPageviewWithID:(NSString*)pageViewID andParams:(NSDictionary*)params {
+- (NSString*)startPageviewWithTitle:(NSString *)title andLocation:(NSString *)location andParams:(NSDictionary *)params {
     NSString *uuid = [@[[NSUUID UUID].UUIDString, [NSUUID UUID].UUIDString] componentsJoinedByString:@"-"];
     NSURLRequest *request = [self.requestFactory requestWithPath:@"start"
                                                        andParams:@{
                                                                    @"nmn": @"pageview",
                                                                    @"typ": @"session",
-                                                                   @"pei": pageViewID,
-                                                                   @"sei": uuid
+                                                                   @"pei": [uuid substringToIndex:8],
+                                                                   @"sei": uuid,
+                                                                   @"location": location ?: [NSNull null],
+                                                                   @"title": title ?: [NSNull null]
                                                                    }
                                              andAdditionalParams:params];
     [self.sessions addObject:uuid];
