@@ -255,7 +255,7 @@
 - (void)stopSessionWithID:(NSString*)sessionID withParams:(NSDictionary*)params {
     NSURLRequest *request = [self.requestFactory requestWithPath:@"stop"
                                                        andParams:@{
-                                                                   @"nmn": @"session",
+                                                                   @"nmn": self.sessionTypes[sessionID] ?: @"session",
                                                                    @"typ": @"session",
                                                                    @"sei": sessionID
                                                                    }
