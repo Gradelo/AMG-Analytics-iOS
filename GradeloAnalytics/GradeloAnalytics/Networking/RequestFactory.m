@@ -9,7 +9,7 @@
 #import "RequestFactory.h"
 #import <UIKit/UIKit.h>
 
-NSString * const APIHost = @"api.metta.tech";
+NSString * const APIHost = @"anayltics.api.gradelo.com";
 NSString * const CachedUUIDString = @"com.gradelo.gradeloanalytics.fallbackClientID";
 
 @interface RequestFactory ()
